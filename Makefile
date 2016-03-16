@@ -1,63 +1,71 @@
 #------------------------------------------------------------------------------
 
-CC=g++
-CCFLAGS=
-LDFLAGS=
-LIBCCFLAGS=-Wall -Werror -fpic
+MKDIR_P = mkdir -p
 
-PROJECT_INCLUDE_DIR=include
 PROJECT_INCLUDES=python_pcie.h
 
 SOURCE=python_pcie.cpp
 LIB=pypcie
 
-TEST_DIR=test
 TEST_PROGRAM=test
-
 SYS_INCLUDES=/usr/include
 
-BUILD_DIR=build
+#Directories
+TEST_DIR=test
+LIB_DIR=lib
+OUT_DIR=build
 SOURCE_DIR=src
-INCLUDE_DIR=-Iinclude -I/usr/include
+INC_DIR=include
+SYS_INC_DIR=/usr/include
+OBJ_DIR=obj
 
 
+#Flags
+CC=g++
+CCFLAGS=-I$(INC_DIR) -I$(SYS_INC_DIR)
+OFLAGS=-c
+
+LDFLAGS=-L$(LIB_DIR) -l$(LIB)
+LIBCCFLAGS=-Wall -Werror -fpic
 
 #------------------------------------------------------------------------------
 
 # $@ = Target
 # $^ = All Pre-requisits with duplicates removed
 
+all: directories library ctest
 
+library:$(LIB_DIR)/lib$(LIB).so
+ctest:$(OUT_DIR)/$(TEST_PROGRAM)
+directories: ${OUT_DIR}
 
-#all: $(MYPROGRAM)
-#
-#$(MYPROGRAM): $(SOURCE)
-#	$(CC) -I$(MYINCLUDES) $(SOURCE) -o$(MYPROGRAM) -l$(MYLIBRARIES)
-
-
-#all: $(BUILD_DIR)/$(LIB) $(BUILD_DIR)/$(TEST_PROGRAM)
-all: LIBRARY
-
-LIBRARY:$(BUILD_DIR)/lib$(LIB)
-
-$(BUILD_DIR)/lib$(LIB):$(SOURCE_DIR)/$(SOURCE)
+#cpp -> shared object library
+$(LIB_DIR)/lib$(LIB).so:$(SOURCE_DIR)/$(SOURCE)
 	@echo "Building Library"
-	$(CC) -o $@ $(CCFLAGS) $(INCLUDE_DIR) -c $(LIBCCFLAGS) $<
-
-#$(TEST_PROGRAM):$(BUILD_DIR)/$(TEST_PROGRAM).o
-#	$(CC) -I$(PROJECT_INCLUDE_DIR)/$(PROJECT_INCLUDES) -o$(BUILD_DIR)/$(TEST_PROGRAM) $(TEST_DIR)/$(TEST_SOURCE)
-
-#$(BUILD_DIR)/$(TEST_PROGRAM):$(BUILD_DIR)/$(TEST_PROGRAM).o
-#	$(CC) -o $@ $(LDFLAGS) $^ 
+	$(CC) -o $@ $(CCFLAGS) $(OFLAGS) $(LIBCCFLAGS) $<
 
 
+#Test Program Build Instructions
+#cpp -> obj
+$(OBJ_DIR)/$(TEST_PROGRAM).o:$(TEST_DIR)/$(TEST_PROGRAM).cpp
+	@echo "Compiling Test application object"
+	$(CC) -o $@ $(CCFLAGS) $(OFLAGS) $<
 
-#$(BUILD_DIR)/$(TEST_PROGRAM).o:$(TEST_DIR)/$(TEST_PROGRAM).cpp
-$(BUILD_DIR)/$(TEST_PROGRAM):$(TEST_DIR)/$(TEST_PROGRAM).cpp
+#obj -> exe
+$(OUT_DIR)/$(TEST_PROGRAM):$(OBJ_DIR)/$(TEST_PROGRAM).o
 	@echo "Building Test application"
-	$(CC) -o $@ -c $(CFLAGS) $<
+	$(CC) -o $@ $(LDFLAGS) $<
+
+.PHONY: clean directories
 
 clean:
-	rm -rf $(BUILD_DIR)/*
+	rm -rf $(OUT_DIR)/*
+	rm -rf $(LIB_DIR)/*
+	rm -rf $(OBJ_DIR)/*
+
+
+${OUT_DIR}:
+	@echo "Creating output directory"
+	@${MKDIR_P} ${OUT_DIR}
 
 

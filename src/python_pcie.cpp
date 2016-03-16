@@ -24,7 +24,7 @@
 
 
 //Constructor/Destructor
-PythonPCIE::PythonPCIE (const char * pcie_device, bool debug){
+PythonPCIE::PythonPCIE (bool debug){
   //Configure the class
   //Initialize Variable
   this->fd = -1;
@@ -34,6 +34,7 @@ PythonPCIE::PythonPCIE (const char * pcie_device, bool debug){
 
   if (debug){
     this->debug = true;
+    DEBUG printf("%s: Debug Enabled\n", __FILE__);
   }
 }
 
@@ -46,19 +47,23 @@ int PythonPCIE::_write(uint64_t addr, uint64_t count, const uint8_t * data){
   uint8_t * virt_addr = NULL;
 
   if (addr > size) {
-    DEBUG printf("%s, Requested address is greater than the size of the memory!", __FILE__);
+    DEBUG printf("%s: Requested address is greater than the size of the memory!\n", __FILE__);
     return -1;
   }
   if (count > (size - addr)) {
     count = (size - addr);
-    DEBUG printf("%s, Write request is too large, trimming read to %d", __FILE__, (unsigned int) count);
+    DEBUG printf("%s: Write request is too large, trimming read to %d\n", __FILE__, (unsigned int) count);
     return -2;
   }
 
   virt_addr = (uint8_t *) this->mem + addr;
 
   //*((uint8_t *) virt_addr) = data;
-  memcpy(virt_addr, data, count);
+  //memcpy(virt_addr, data, count);
+  for (uint64_t i = 0; i < count; i++){
+    virt_addr[i] = data[i];
+  }
+ 
   return 0;
 }
 
@@ -68,18 +73,21 @@ int PythonPCIE::_read(uint64_t addr, uint64_t count, uint8_t *data){
   uint8_t * virt_addr = NULL;
 
   if (addr > size) {
-    DEBUG printf("%s, Requested address is greater than the size of the memory!", __FILE__);
+    DEBUG printf("%s: Requested address is greater than the size of the memory!\n", __FILE__);
     return -1;
   }
   if (count > (size - addr)) {
     count = (size - addr);
-    DEBUG printf("%s, Read request is too large, trimming read to %d",  __FILE__, (unsigned int) count);
+    DEBUG printf("%s: Read request is too large, trimming read to %d\n",  __FILE__, (unsigned int) count);
     return -2;
   }
 
   virt_addr = (uint8_t *) this->mem + addr;
 
-  memcpy(data, virt_addr, count);
+  for (uint64_t i = 0; i < count; i++){
+    data[i] = virt_addr[i];
+  }
+  //memcpy(data, virt_addr, count);
   return 0;
 }
 
@@ -92,20 +100,20 @@ int PythonPCIE::_open_pcie(const char * path, uint64_t size){
   ERROR_CHECK(this->fd == -1);
   if (this->fd == -1){
     //File number is bad return
-    DEBUG printf("%s, Openning File Failed\n", __FILE__);
+    DEBUG printf("%s: Openning File Failed\n", __FILE__);
     return -1;
   }
-  DEBUG printf("%s, Opened File: %s\n", __FILE__, path);
+  DEBUG printf("%s: Opened File: %s\n", __FILE__, path);
 
   //Have an open file, now map the memory location to our memory base
   this->mem = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0x00);
   ERROR_CHECK(this->mem == (void *) -1);
   if (this->mem == (void *) -1){
-    DEBUG printf("%s, Failed to get memory, closing file\n", __FILE__);
+    DEBUG printf("%s: Failed to get memory, closing file\n", __FILE__);
     close(fd);
     return -2;
   }
-  DEBUG printf("%s, Memory mapped successful, memory size: 0x%08X\n", __FILE__, (unsigned int )size);
+  DEBUG printf("%s: Memory mapped successful, memory size: 0x%08X\n", __FILE__, (unsigned int )size);
   this->size = size;
 
   //Get the memory base
@@ -122,9 +130,9 @@ int PythonPCIE::close_pcie(){
     return 0;
   } 
   ERROR_CHECK(munmap(this->mem, this->size) == -1);
-  DEBUG printf("%s, Unmapped Memory\n", __FILE__);
+  DEBUG printf("%s: Unmapped Memory\n", __FILE__);
   close(fd);
-  DEBUG printf("%s, Closed File\n", __FILE__);
+  DEBUG printf("%s: Closed File\n", __FILE__);
 
   return 0;
 }

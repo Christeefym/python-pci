@@ -18,7 +18,7 @@ class PythonPCIE {
     int _open_pcie(const char * path, uint64_t size);
 
   public:
-    PythonPCIE (const char *pcie_device, bool debug = false);
+    PythonPCIE (bool debug = false);
     ~PythonPCIE ();
 
     int open_pcie(const char * path, uint64_t size);
@@ -32,6 +32,5 @@ class PythonPCIE {
 
 
 };
-
 
 #endif //__NYSA_PCIE__
