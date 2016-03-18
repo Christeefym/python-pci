@@ -1,0 +1,3 @@
+target = pcie
+sources = sippciecmodule.cpp sippcieuint8_t.cpp sippcieuint64_t.cpp sippciePythonPCIE.cpp
+headers = sipAPIpcie.h

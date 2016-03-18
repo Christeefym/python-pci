@@ -144,6 +144,7 @@ bool PythonPCIE::is_open(){
 int PythonPCIE::write(uint64_t addr, uint64_t count, const uint8_t * data){
   return this->_write(addr, count, data);
 }
+
 int PythonPCIE::read(uint64_t addr, uint64_t count, uint8_t * data){
   return this->_read(addr, count, data);
 }
