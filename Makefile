@@ -37,7 +37,7 @@ all: directories library ctest
 
 library:$(LIB_DIR)/lib$(LIB).so
 ctest:$(OUT_DIR)/$(TEST_PROGRAM)
-directories: ${OUT_DIR}
+directories: ${OUT_DIR} ${LIB_DIR} ${OBJ_DIR}
 
 #cpp -> shared object library
 $(LIB_DIR)/lib$(LIB).so:$(SOURCE_DIR)/$(SOURCE)
@@ -67,5 +67,13 @@ clean:
 ${OUT_DIR}:
 	@echo "Creating output directory"
 	@${MKDIR_P} ${OUT_DIR}
+
+${OBJ_DIR}:
+	@echo "Creating obj directory"
+	@${MKDIR_P} ${OBJ_DIR}
+
+${LIB_DIR}:
+	@echo "Creating lib directory"
+	@${MKDIR_P} ${LIB_DIR}
 
 
