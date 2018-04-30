@@ -31,7 +31,7 @@ makefile = sipconfig.SIPModuleMakefile(config, build_file)
 # specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
 # ".dll" extension on Windows).
 makefile.extra_lib_dirs = [os.path.join(os.path.pardir, "lib")]
-#makefile.extra_libs = ["pypcie"]
+makefile.extra_libs = ["pypcie"]
 
 # Generate the Makefile itself.
 makefile.generate()

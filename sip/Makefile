@@ -9,7 +9,7 @@ CPPFLAGS = -DNDEBUG -I. -I/usr/include/python2.7
 CFLAGS =  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W
 CXXFLAGS =  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W
 LFLAGS =  -Wl,-Bsymbolic-functions -Wl,-z,relro -shared -Wl,--version-script=pcie.exp
-LIBS = -L../lib
+LIBS = -L../lib -lpypcie
 .SUFFIXES: .c .o .cpp .cc .cxx .C
 
 
