@@ -111,13 +111,13 @@ As an example the BRAM on this FPGA design is located at 0x000E0000 so I added a
 # Interrupts
 
 When using the XDMA driver users might want to employ interrupts to initiate communciations. There is another example application called 'test_interrupts.py' that will listen for interrupts from the FPGA.
-The if run without arguments the script will wait for an interrupt on '4' which can be stimulated by raising the 4th bit 'usr_irq_req' the application will report this interrupt and then exit.
+If the application is run without arguments the script will wait for an interrupt on '4' which can be stimulated by raising the 4th bit 'usr_irq_req' the application will report this interrupt and then exit.
 
 ## Note on interrupts
 
-I haven't researched this too much but it seems as though interrupt 0-3 are reserved for the driver itself, so it is recommended to only use interrupt 4 - 15
+I haven't researched this too much but it seems as though interrupt 0-3 are reserved for the driver itself, so it is recommended to only use interrupts 4 through 15.
 
 # NOTES about SIP
 
-SIP is a tool to bind python to C and C++ its very useful but can be a headache to install and use so I've generated all the C++ files and, hopefully, any users who wish to use this will not be required to install SIP and instead just run 'make' and 'make install' within the 'sip' directory
+SIP is a tool to bind Python to C and C++ its very useful but can be a headache to install and use so I've generated all the C++ files and, hopefully, any users who wish to use this will not be required to install SIP and instead just run 'make' and 'make install' within the 'sip' directory
 
