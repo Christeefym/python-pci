@@ -97,7 +97,7 @@ In order to reduce the amount of script modification required to get this demo u
 <base>/python/config/device_map.json
 ```
 
-As an example the BRAM on this FPGA design is located at 0x000E0000 so I added an entry "bram":"0x000E0000" within the 'json' file adding another entry would look something like this ('gpio' @ address 0x000F0000)
+As an example the BRAM on this FPGA design is located at 0x000E0000 so I added an entry "bram":"0x000E0000" within the 'json' file. Adding another entry would look something like this ('gpio' @ address 0x000F0000)
 
 
 ```
