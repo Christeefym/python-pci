@@ -4,6 +4,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string>
+#include <vector>
+#include <byteswap.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -12,15 +14,30 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#define ERROR_CHECK(x)                                        \
-	do {                                                        \
-    if (x){                                                   \
-		  fprintf(stderr, "Error at line %d, file %s (%d) [%s]\n",\
-		  __LINE__, __FILE__, errno, strerror(errno)); exit(1);   \
-    }                                                         \
-	} while(0)
+#define ERROR_CHECK(x)                                                        \
+        do {                                                                  \
+                if (x){                                                       \
+                  fprintf(stderr, "Error at line %d, file %s (%d) [%s]\n",    \
+                      __LINE__, __FILE__, errno, strerror(errno)); exit(1);   \
+                }                                                             \
+        } while(0)
 
 #define DEBUG if (this->debug)
+
+
+/* ltoh: little to host */
+/* htol: little to host */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#  define ltohl(x)       (x)
+#  define ltohs(x)       (x)
+#  define htoll(x)       (x)
+#  define htols(x)       (x)
+#elif __BYTE_ORDER == __BIG_ENDIAN
+#  define ltohl(x)     __bswap_32(x)
+#  define ltohs(x)     __bswap_16(x)
+#  define htoll(x)     __bswap_32(x)
+#  define htols(x)     __bswap_16(x)
+#endif
 
 
 //Constructor/Destructor
@@ -42,9 +59,9 @@ PythonPCIE::~PythonPCIE (){
 }
 
 //Private Functions
-int PythonPCIE::_write(uint64_t addr, uint64_t count, const uint8_t * data){
+int PythonPCIE::_write(uint64_t addr, uint64_t count, long * data){
   //Local Variables
-  uint8_t * virt_addr = NULL;
+  uint32_t * virt_addr = NULL;
 
   if (addr > size) {
     DEBUG printf("%s: Requested address is greater than the size of the memory!\n", __FILE__);
@@ -56,21 +73,23 @@ int PythonPCIE::_write(uint64_t addr, uint64_t count, const uint8_t * data){
     return -2;
   }
 
-  virt_addr = (uint8_t *) this->mem + addr;
+  virt_addr = (uint32_t *) this->mem + addr;
 
-  //*((uint8_t *) virt_addr) = data;
+
+  //*((char *) virt_addr) = data;
   //memcpy(virt_addr, data, count);
   for (uint64_t i = 0; i < count; i++){
-    virt_addr[i] = data[i];
+  	DEBUG printf("%s: Data: 0x%08X \n", __FILE__, (uint32_t) data[i]);
+    virt_addr[i] = htoll((uint32_t) data[i]);
   }
- 
+
   return 0;
 }
 
 //The incomming value is the size of count
-int PythonPCIE::_read(uint64_t addr, uint64_t count, uint8_t *data){
+int PythonPCIE::_read(uint64_t addr, uint64_t count, long *data){
   //Local Variables
-  uint8_t * virt_addr = NULL;
+  uint32_t * virt_addr = NULL;
 
   if (addr > size) {
     DEBUG printf("%s: Requested address is greater than the size of the memory!\n", __FILE__);
@@ -82,10 +101,11 @@ int PythonPCIE::_read(uint64_t addr, uint64_t count, uint8_t *data){
     return -2;
   }
 
-  virt_addr = (uint8_t *) this->mem + addr;
+  virt_addr = (uint32_t *) this->mem + addr;
 
   for (uint64_t i = 0; i < count; i++){
-    data[i] = virt_addr[i];
+    DEBUG printf ("Data Read: 0x%02X\n",  virt_addr[i]);
+    data[i] = (long) ltohl(virt_addr[i]);
   }
   //memcpy(data, virt_addr, count);
   return 0;
@@ -128,7 +148,7 @@ int PythonPCIE::open_pcie(const char * path, uint64_t size){
 int PythonPCIE::close_pcie(){
   if (this->fd == -1) {
     return 0;
-  } 
+  }
   ERROR_CHECK(munmap(this->mem, this->size) == -1);
   DEBUG printf("%s: Unmapped Memory\n", __FILE__);
   close(fd);
@@ -141,12 +161,29 @@ bool PythonPCIE::is_open(){
   return (this->fd != -1);
 };
 
-int PythonPCIE::write(uint64_t addr, uint64_t count, const uint8_t * data){
-  return this->_write(addr, count, data);
+int PythonPCIE::write(uint64_t addr, std::vector<long> data){
+  DEBUG printf("%s: in write\n", __FILE__);
+  DEBUG printf("%s: Address: 0x%08X\n", __FILE__, (int) addr);
+  long * data_arr = (long *) data.data();
+  DEBUG printf("%s: Write Length: %d\n", __FILE__, (int) data.size());
+  DEBUG printf("%s: write done\n", __FILE__);
+  return this->_write(addr, (uint64_t) data.size(), data_arr);
 }
 
-int PythonPCIE::read(uint64_t addr, uint64_t count, uint8_t * data){
-  return this->_read(addr, count, data);
+std::vector<long> PythonPCIE::read(uint64_t addr, uint64_t length){
+  int status = 0;
+  DEBUG printf("%s: in read\n", __FILE__);
+  DEBUG printf("%s: Address: 0x%08X\n", __FILE__, (int) addr);
+  DEBUG printf("%s: Requested Length: %d\n", __FILE__, (int) length);
+  std::vector<long> data(length);
+  long * data_arr = (long *) data.data();
+  DEBUG printf("%s: Vector Size: %d\n", __FILE__, (int) data.size());
+  status = this->_read(addr, (uint64_t) data.size(), data_arr);
+  if (status != 0)
+    data.resize(0);
+
+  DEBUG printf("%s: read done\n", __FILE__);
+  return data;
 }
 
 

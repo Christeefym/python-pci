@@ -2,6 +2,7 @@
 #define __NYSA_PCIE__
 
 #include <stdint.h>
+#include <vector>
 
 class PythonPCIE {
   private:
@@ -12,8 +13,8 @@ class PythonPCIE {
     uint64_t size;
 
     //Low Level interface
-    int _write(uint64_t addr, uint64_t count, const uint8_t * data);
-    int _read(uint64_t addr, uint64_t count, uint8_t * data);
+    int _write(uint64_t addr, uint64_t count, long * data);
+    int _read(uint64_t addr, uint64_t count, long * data);
 
     int _open_pcie(const char * path, uint64_t size);
 
@@ -26,8 +27,8 @@ class PythonPCIE {
     bool is_open();
     int close_pcie();
 
-    int write(uint64_t addr, uint64_t count, const uint8_t * data);
-    int read(uint64_t addr, uint64_t count, uint8_t * data);
+    int write(uint64_t addr, std::vector<long> data);
+    std::vector<long> read(uint64_t addr, uint64_t length);
 
 
 
