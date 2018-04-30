@@ -42,7 +42,7 @@ EPILOG = "\n" \
          "\t%s [%s]\n" \
          "\n" % (NAME, DEVICE_NAME_DEFAULT)
 
-def test_mem(device, size, cmd, cmd_args, cmd_data = [], debug=False):
+def test_mem(device, size, debug=False):
     p = pcie.PythonPCIE(debug)
     p.open_pcie(device, size)
     amm = BlockRamDriver(p, ADDR_MEM_BASE, debug)
@@ -96,7 +96,7 @@ def main(argv):
         print ("test: %s" % device)
         print ("Size: 0x%08X" % size)
 
-    test_mem(device, size, 0x76543210, cmd_args = 0, cmd_data = [], debug = args.debug)
+    test_mem(device, size, debug = args.debug)
 
 if __name__ == "__main__":
     main(sys.argv)
