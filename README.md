@@ -12,37 +12,46 @@ FPGA. It is not meant for speed.
 * Within base directory make the cpp pcie library
 * run 'make', you should see this:
 
-    Building Library
-    g++ -o lib/libpypcie.so -Iinclude -I/usr/include -c -Wall -Werror -fpic src/python_pcie.cpp
-    Compiling Test application object
-    g++ -o obj/test.o -Iinclude -I/usr/include -c test/test.cpp
-    Building Test application
-    g++ -o build/test -Llib -lpypcie obj/test.o
+```
+Building Library
+g++ -o lib/libpypcie.so -Iinclude -I/usr/include -c -Wall -Werror -fpic src/python_pcie.cpp
+Compiling Test application object
+g++ -o obj/test.o -Iinclude -I/usr/include -c test/test.cpp
+Building Test application
+g++ -o build/test -Llib -lpypcie obj/test.o
+```
 
 * Go to: 'sip' directory
 * run 'make', you should see this:
 
-    g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciecmodule.o sippciecmodule.cpp
-    g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippcieuint64_t.o sippcieuint64_t.cpp
-    g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciePythonPCIE.o sippciePythonPCIE.cpp
-    g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciestdvector1400.o sippciestdvector1400.cpp
-    g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciestdvector1800.o sippciestdvector1800.cpp
-    g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciestdvector2000.o sippciestdvector2000.cpp
-    g++ -Wl,-Bsymbolic-functions -Wl,-z,relro -shared -Wl,--version-script=pcie.exp -o pcie.so sippciecmodule.o sippcieuint64_t.o sippciePythonPCIE.o sippciestdvector1400.o sippciestdvector1800.o sippciestdvector2000.o -L../lib
+```
+g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciecmodule.o sippciecmodule.cpp
+g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippcieuint64_t.o sippcieuint64_t.cpp
+g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciePythonPCIE.o sippciePythonPCIE.cpp
+g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciestdvector1400.o sippciestdvector1400.cpp
+g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciestdvector1800.o sippciestdvector1800.cpp
+g++ -c -g -O2 -fstack-protector-strong -Wformat -Werror=format-security  -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -Wall -W -DNDEBUG -I. -I/usr/include/python2.7 -o sippciestdvector2000.o sippciestdvector2000.cpp
+g++ -Wl,-Bsymbolic-functions -Wl,-z,relro -shared -Wl,--version-script=pcie.exp -o pcie.so sippciecmodule.o sippcieuint64_t.o sippciePythonPCIE.o sippciestdvector1400.o sippciestdvector1800.o sippciestdvector2000.o -L../lib
+```
 
 * 'sudo make install', you shoud see this
-    [sudo] password for <user>:
-    cp -f pcie.so /usr/lib/python2.7/dist-packages/pcie.so
+
+```
+[sudo] password for <user>:
+cp -f pcie.so /usr/lib/python2.7/dist-packages/pcie.so
+```
 
 * using the 'address editor' within Vivado's block diagram find the address of a block ram
 * edit python/config/device_map.json and change the address to your block ram ie if your block ram is at 0x00010000 change the 0x000E0000 to 0x00010000
 * run 'python2 demo_block_ram_driver.py' you should see this:
 
-    Demo Reading and Writing of Blockram over PCIE using Python
-    Write 0x01233210 to address 0x00000000 (Relative to BRAM Base)
-    Write 0xDEADBEAF to address 0x00000001 (Relative to BRAM Base)
-    Read 0x01233210 from address 0x00000000 (Relative to BRAM Base)
-    Read 0xDEADBEEF from address 0x00000001 (Relative to BRAM Base)
+```
+Demo Reading and Writing of Blockram over PCIE using Python
+Write 0x01233210 to address 0x00000000 (Relative to BRAM Base)
+Write 0xDEADBEAF to address 0x00000001 (Relative to BRAM Base)
+Read 0x01233210 from address 0x00000000 (Relative to BRAM Base)
+Read 0xDEADBEEF from address 0x00000001 (Relative to BRAM Base)
+```
 
 
 # Driver
@@ -69,8 +78,10 @@ An example 'block ram driver' is available to demonstrate the use of the driver 
 ## NOTE: addresses need to be shifted by the user
 The AXI Lite Addresses are 32-bit aligned and are not done by the low level driver. Instead the user must shift the address as can be demonstred by the 'block_ram_driver.py'
 
-    def set_value(self, address, value):
-        self.write_register(address << 2, value)
+```
+def set_value(self, address, value):
+    self.write_register(address << 2, value)
+```
 
 
 # DEMO Script
@@ -82,15 +93,19 @@ An example python script: 'demo_block_ram_driver.py' which writes two values to 
 
 In order to reduce the amount of script modification required to get this demo up and running the address of the BRAM should be entered into the JSON file:
 
-    <base>/python/config/device_map.json
+```
+<base>/python/config/device_map.json
+```
 
 As an example the BRAM on this FPGA design is located at 0x000E0000 so I added an entry "bram":"0x000E0000" within the 'json' file adding another entry would look something like this ('gpio' @ address 0x000F0000)
 
 
-    {
-	    "bram":"0x000E0000",
-      "gpio":"0x000F0000"
-    }
+```
+{
+  "bram":"0x000E0000",
+  "gpio":"0x000F0000"
+}
+```
 
 
 # Interrupts
